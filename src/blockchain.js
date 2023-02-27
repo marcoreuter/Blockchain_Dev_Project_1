@@ -170,7 +170,7 @@ class Blockchain {
    * Remember the star should be returned decoded.
    * @param {*} address 
    */
-  getStarsbyWalletAddress(address) {
+  getStarsByWalletAddress(address) {
     let self = this;
     let stars = [];
     return new Promise(async(resolve,reject) => {
