@@ -64,7 +64,9 @@ class Blockchain {
     
     _addBlock(block) {
       let self = this;
-      return new Promise((resolve, reject) => {
+      return new Promise (async(resolve, reject) => {
+          // Check that chain is valid before adding
+          await self.validateChain();
           // Assign height, previousBlockHash, and timestamp to block
           block.height = self.chain.length;
           block.time = new Date().getTime().toString().slice(0,-3);
@@ -74,18 +76,10 @@ class Blockchain {
           // Create block hash and add block to chain
           block.hash = SHA256(JSON.stringify(block)).toString();
           // Check for chain validity before appending to the chain          
-          if(this.validateChain()){
-            console.log('hittheif')
-            this.chain.push(block);
-            // Update chain height
-            this.height = self.height+1;
-            resolve(block);
-          }
-          else{
-            reject('Cannot add block to chain, not valid!')
-          }
-    
-          
+          this.chain.push(block);
+          // Update chain height
+          this.height = self.height+1;
+          resolve(block);          
       });
     }
     
