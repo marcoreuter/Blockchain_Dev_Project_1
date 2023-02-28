@@ -67,19 +67,24 @@ class Blockchain {
       return new Promise (async(resolve, reject) => {
           // Check that chain is valid before adding
           // Assign height, previousBlockHash, and timestamp to block
-          self.validateChain();
-          block.height = self.chain.length;
-          block.time = new Date().getTime().toString().slice(0,-3);
-          if(self.height >-1) { // special genesis block case
-            block.previousBlockHash = self.chain[self.height].hash;
-          }     
-          // Create block hash and add block to chain
-          block.hash = SHA256(JSON.stringify(block)).toString();
-          // Check for chain validity before appending to the chain          
-          this.chain.push(block);
-          // Update chain height
-          this.height = self.height+1;
-          resolve(this);          
+          let validchain = await self.validateChain();
+          if (validchain.length === self.length){
+            block.height = self.chain.length;
+            block.time = new Date().getTime().toString().slice(0,-3);
+            if(self.height >-1) { // special genesis block case
+              block.previousBlockHash = self.chain[self.height].hash;
+            }     
+            // Create block hash and add block to chain
+            block.hash = SHA256(JSON.stringify(block)).toString();
+            // Check for chain validity before appending to the chain          
+            this.chain.push(block);
+            // Update chain height
+            this.height = self.height+1;
+            resolve(this); 
+          }  
+          else{
+            reject('Chain not valid, cant add block')
+          }                 
       });
     }
     
@@ -121,7 +126,7 @@ class Blockchain {
       return new Promise(async (resolve, reject) => {
         let messageTime = parseInt(message.split(':')[1])
         let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
-        if (currentTime - messageTime<= 30000000){
+        if (currentTime - messageTime<= 300){
           bitcoinMessage.verify(message,address,signature)
           let data = {"owner": message.split(':')[0], "star": star};
           let block = new BlockClass.Block(data);
